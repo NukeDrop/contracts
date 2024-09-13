@@ -17,6 +17,10 @@ use std::{
     string::String, 
     option::Option, 
     asset::mint_to,
+    context::msg_amount,
+    constants::ZERO_B256,
+    call_frames::msg_asset_id,
+    asset::transfer,
 };
 use sway_libs::{
     asset::{
@@ -36,10 +40,17 @@ use sway_libs::{
         _owner,
         initialize_ownership,
         transfer_ownership,
+        only_owner,
     },
 };
 use errors::*;
 use events::*;
+
+pub struct FeeInfo {
+    fee_asset: AssetId,
+    fee_amount: u64,
+    fee_address: Address,
+}
 
 storage {
     total_assets: u64 = 0,
@@ -51,10 +62,22 @@ storage {
     description: StorageMap<AssetId, StorageString> = StorageMap {},
     metadata: StorageMetadata = StorageMetadata {},
     asset: StorageMap<b256, AssetId> = StorageMap {},
+
+    fee_info: FeeInfo = FeeInfo {
+        fee_amount: 0,
+        fee_asset: AssetId::from(ZERO_B256),
+        fee_address: Address::zero(),
+    },
 }
 
 abi TokenFactory {
     #[storage(read, write)]
+    fn set_fee_info(fee_info: FeeInfo);
+
+    #[storage(read)]
+    fn get_fee_info() -> FeeInfo;
+
+    #[payable, storage(read, write)]
     fn new_asset(
         name: String,
         symbol: String,
@@ -86,7 +109,7 @@ impl TokenFactory for Contract {
         transfer_ownership(new_owner);
     }
 
-    #[storage(read, write)]
+    #[payable, storage(read, write)]
     fn new_asset(
         name: String,
         symbol: String,
@@ -96,8 +119,17 @@ impl TokenFactory for Contract {
         description: Option<String>,
         metadata_list: Vec<(String, Metadata)>,
     ) -> AssetId {
-        // validate the token mint amount
-        require(mint_amount > 0, TokenError::ZeroMintAmount);
+        // Get the fee requirement and checks if this is satisfied by the sender
+        let fee_info = storage.fee_info.read();
+
+        let asset_id = msg_asset_id();
+        require(asset_id == fee_info.fee_asset, TokenError::InvalidAssetPayment);
+        
+        let amount = msg_amount();
+        require(amount >= fee_info.fee_amount, TokenError::FeeAmountTooSmall);
+
+        // transfer the fee to the fee address
+        transfer(Identity::Address(fee_info.fee_address), asset_id, amount);
 
         // validate the token name
         require(
@@ -119,10 +151,6 @@ impl TokenFactory for Contract {
             TokenError::InvalidSymbol(symbol),
         );
 
-        // initialize the ownership
-        let owner = msg_sender().unwrap();
-        initialize_ownership(owner);
-
         // generate a sub id of the token
         let sub_id = sha256((ContractId::this(), symbol));
         let asset = AssetId::new(ContractId::this(), sub_id);
@@ -130,15 +158,22 @@ impl TokenFactory for Contract {
         // check if the asset already existed
         require(storage.total_supply.get(asset).try_read().is_none(), TokenError::TokenAlreadyExists(asset));
 
+        // validate the token mint amount
+        require(mint_amount > 0, TokenError::ZeroMintAmount);
+
+        // mint the tokens to the token creator
+        let sender = msg_sender().unwrap();
+        mint_to(sender, sub_id, mint_amount);
+
+        // set the total supply
+        storage.total_assets.write(storage.total_assets.read() + 1);
+        storage.total_supply.insert(asset, mint_amount);
+        storage.asset.insert(sha256(symbol), asset);
+
+        // set the metadata
         _set_name(storage.name, asset, name);
         _set_symbol(storage.symbol, asset, symbol);
         _set_decimals(storage.decimals, asset, decimals);
-
-        storage.total_assets.write(storage.total_assets.read() + 1);
-        storage.total_supply.insert(asset, mint_amount);
-
-        // mint the tokens to the token creator
-        mint_to(owner, sub_id, mint_amount);
 
         storage.logo.insert(asset, StorageString {});
         if let Some(logo_str) = logo {
@@ -149,8 +184,6 @@ impl TokenFactory for Contract {
         if let Some(description_str) = description {
             storage.description.get(asset).write_slice(description_str);
         }
-
-        storage.asset.insert(sha256(symbol), asset);
 
         let len = metadata_list.len();
         require(len < 7, TokenError::TooManyTags);
@@ -165,7 +198,7 @@ impl TokenFactory for Contract {
 
         log(AssetNew {
             asset,
-            owner,
+            owner: sender,
             name,
             symbol,
             decimals,
@@ -180,6 +213,18 @@ impl TokenFactory for Contract {
     #[storage(read)]
     fn get_asset(symbol: String) -> Option<AssetId> {
         storage.asset.get(sha256(symbol)).try_read()
+    }
+
+    #[storage(read, write)]
+    fn set_fee_info(fee_info: FeeInfo) {
+        only_owner();
+
+        storage.fee_info.write(fee_info);
+    }
+
+    #[storage(read)]
+    fn get_fee_info() -> FeeInfo {
+        storage.fee_info.read()
     }
 }
 
@@ -197,7 +242,7 @@ impl SRC7 for Contract {
         } else if key == String::from_ascii_str("description") {
             Some(Metadata::String(storage.description.get(asset).read_slice().unwrap()))
         } else {
-            None
+            _metadata(storage.metadata, asset, key)
         }
     }
 }

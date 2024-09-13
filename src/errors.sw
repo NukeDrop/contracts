@@ -8,4 +8,6 @@ pub enum TokenError {
     TokenAlreadyExists: (AssetId),
     InvalidName: (String),
     InvalidSymbol: (String),
+    InvalidAssetPayment: (),
+    FeeAmountTooSmall: (),
 }
