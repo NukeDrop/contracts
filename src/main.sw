@@ -1,6 +1,7 @@
 contract;
 
 mod errors;
+mod events;
 
 use standards::{
     src20::SRC20, 
@@ -38,13 +39,14 @@ use sway_libs::{
     },
 };
 use errors::*;
+use events::*;
 
 storage {
     total_assets: u64 = 0,
     total_supply: StorageMap<AssetId, u64> = StorageMap {},
     name: StorageMap<AssetId, StorageString> = StorageMap {},
     symbol: StorageMap<AssetId, StorageString> = StorageMap {},
-    decimal: StorageMap<AssetId, u8> = StorageMap {},
+    decimals: StorageMap<AssetId, u8> = StorageMap {},
     logo: StorageMap<AssetId, StorageString> = StorageMap {},
     description: StorageMap<AssetId, StorageString> = StorageMap {},
     metadata: StorageMetadata = StorageMetadata {},
@@ -56,7 +58,7 @@ abi TokenFactory {
     fn new_asset(
         name: String,
         symbol: String,
-        decimal: u8,
+        decimals: u8,
         mint_amount: u64,
         logo: Option<String>,
         description: Option<String>,
@@ -88,7 +90,7 @@ impl TokenFactory for Contract {
     fn new_asset(
         name: String,
         symbol: String,
-        decimal: u8,
+        decimals: u8,
         mint_amount: u64,
         logo: Option<String>,
         description: Option<String>,
@@ -118,8 +120,8 @@ impl TokenFactory for Contract {
         );
 
         // initialize the ownership
-        let author = msg_sender().unwrap();
-        initialize_ownership(author);
+        let owner = msg_sender().unwrap();
+        initialize_ownership(owner);
 
         // generate a sub id of the token
         let sub_id = sha256((ContractId::this(), symbol));
@@ -130,13 +132,13 @@ impl TokenFactory for Contract {
 
         _set_name(storage.name, asset, name);
         _set_symbol(storage.symbol, asset, symbol);
-        _set_decimals(storage.decimal, asset, decimal);
+        _set_decimals(storage.decimals, asset, decimals);
 
         storage.total_assets.write(storage.total_assets.read() + 1);
         storage.total_supply.insert(asset, mint_amount);
 
         // mint the tokens to the token creator
-        mint_to(author, sub_id, mint_amount);
+        mint_to(owner, sub_id, mint_amount);
 
         storage.logo.insert(asset, StorageString {});
         if let Some(logo_str) = logo {
@@ -161,6 +163,17 @@ impl TokenFactory for Contract {
             i += 1;
         }
 
+        log(AssetNew {
+            asset,
+            owner,
+            name,
+            symbol,
+            decimals,
+            supply: mint_amount,
+            logo,
+            description,
+            tags: metadata_list,
+        });
         asset
     }
 
@@ -177,8 +190,8 @@ impl SRC7 for Contract {
             Some(Metadata::String(storage.name.get(asset).read_slice().unwrap()))
         } else if key == String::from_ascii_str("symbol") {
             Some(Metadata::String(storage.symbol.get(asset).read_slice().unwrap()))
-        } else if key == String::from_ascii_str("decimal") {
-            Some(Metadata::Int(storage.decimal.get(asset).read().into()))
+        } else if key == String::from_ascii_str("decimals") {
+            Some(Metadata::Int(storage.decimals.get(asset).read().into()))
         } else if key == String::from_ascii_str("logo") {
             Some(Metadata::String(storage.logo.get(asset).read_slice().unwrap())) 
         } else if key == String::from_ascii_str("description") {
@@ -219,7 +232,7 @@ impl SRC20 for Contract {
 
     #[storage(read)]
     fn decimals(asset: AssetId) -> Option<u8> {
-        _decimals(storage.decimal, asset)
+        _decimals(storage.decimals, asset)
     }
 }
 
