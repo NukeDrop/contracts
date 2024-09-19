@@ -3,11 +3,11 @@ library;
 use std::string::String;
 
 pub enum TokenError {
-    TooManyTags: (),
-    ZeroMintAmount: (),
-    TokenAlreadyExists: (AssetId),
+    InvalidAssetPayment: (),
+    FeeAmountInsufficient: (),
     InvalidName: (String),
     InvalidSymbol: (String),
-    InvalidAssetPayment: (),
-    FeeAmountTooSmall: (),
+    ZeroMintAmount: (),
+    TokenAlreadyExists: (AssetId),
+    TooManyTags: (),
 }

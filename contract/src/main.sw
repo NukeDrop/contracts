@@ -130,7 +130,7 @@ impl TokenFactory for Contract {
         require(asset_id == fee_info.fee_asset, TokenError::InvalidAssetPayment);
         
         let amount = msg_amount();
-        require(amount >= fee_info.fee_amount, TokenError::FeeAmountTooSmall);
+        require(amount >= fee_info.fee_amount, TokenError::FeeAmountInsufficient);
 
         // transfer the fee to the fee address
         transfer(Identity::Address(fee_info.fee_address), asset_id, amount);
@@ -235,13 +235,7 @@ impl TokenFactory for Contract {
 impl SRC7 for Contract {
     #[storage(read)]
     fn metadata(asset: AssetId, key: String) -> Option<Metadata> { 
-        if key == String::from_ascii_str("name") {
-            Some(Metadata::String(storage.name.get(asset).read_slice().unwrap()))
-        } else if key == String::from_ascii_str("symbol") {
-            Some(Metadata::String(storage.symbol.get(asset).read_slice().unwrap()))
-        } else if key == String::from_ascii_str("decimals") {
-            Some(Metadata::Int(storage.decimals.get(asset).read().into()))
-        } else if key == String::from_ascii_str("logo") {
+        if key == String::from_ascii_str("logo") {
             Some(Metadata::String(storage.logo.get(asset).read_slice().unwrap())) 
         } else if key == String::from_ascii_str("description") {
             Some(Metadata::String(storage.description.get(asset).read_slice().unwrap()))
