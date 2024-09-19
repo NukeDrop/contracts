@@ -16,7 +16,7 @@ use std::{
 
     string::String, 
     option::Option, 
-    asset::mint_to,
+    asset::{mint_to, mint},
     context::msg_amount,
     constants::ZERO_B256,
     call_frames::msg_asset_id,
@@ -77,7 +77,8 @@ abi TokenFactory {
     #[storage(read)]
     fn get_fee_info() -> FeeInfo;
 
-    #[payable, storage(read, write)]
+    #[payable]
+    #[storage(read, write)]
     fn new_asset(
         name: String,
         symbol: String,
@@ -92,7 +93,7 @@ abi TokenFactory {
     fn get_asset(symbol: String) -> Option<AssetId>;
 
     #[storage(read, write)]
-    fn initialize_ownership(new_owner: Identity);
+    fn initialize(new_owner: Identity, fee_info: FeeInfo);
 
     #[storage(read, write)]
     fn transfer_ownership(new_owner: Identity);
@@ -100,8 +101,10 @@ abi TokenFactory {
 
 impl TokenFactory for Contract {
     #[storage(read, write)]
-    fn initialize_ownership(new_owner: Identity) {
+    fn initialize(new_owner: Identity, fee_info: FeeInfo) {
         initialize_ownership(new_owner);
+
+        storage.fee_info.write(fee_info);
     }
 
     #[storage(read, write)]
@@ -109,7 +112,8 @@ impl TokenFactory for Contract {
         transfer_ownership(new_owner);
     }
 
-    #[payable, storage(read, write)]
+    #[payable]
+    #[storage(read, write)]
     fn new_asset(
         name: String,
         symbol: String,
@@ -280,4 +284,3 @@ impl SRC20 for Contract {
         _decimals(storage.decimals, asset)
     }
 }
-
