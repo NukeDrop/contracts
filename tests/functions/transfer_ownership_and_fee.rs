@@ -26,8 +26,10 @@ mod success {
         contract
             .with_account(&user.wallet)
             .await?
-            .set_fee_info(new_fee_info)
+            .set_fee_info(new_fee_info.clone())
             .await?;
+
+        assert_eq!(contract.fee_info().await?.value, new_fee_info);
 
         Ok(())
     }

@@ -48,7 +48,7 @@ mod success {
         assert_eq!(contract.name(&asset).await?.value, Some(name.clone()));
         assert_eq!(contract.symbol(&asset).await?.value, Some(symbol.clone()));
         assert_eq!(contract.decimals(&asset).await?.value, Some(decimals));
-        assert_eq!(contract.asset_get(&symbol).await?.value, Some(asset));
+        assert_eq!(contract.get_asset(&symbol).await?.value, Some(asset));
 
         // check the metadata
         assert_eq!(contract.metadata(asset, "logo".to_string()).await?.value, Some(Metadata::String(logo.clone().unwrap())));

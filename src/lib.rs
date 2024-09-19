@@ -157,7 +157,7 @@ impl TokenFactoryContract{
             .await?)
     }
 
-    pub async fn asset_get(&self, name: &String) -> anyhow::Result<CallResponse<Option<AssetId>>> {
+    pub async fn get_asset(&self, name: &String) -> anyhow::Result<CallResponse<Option<AssetId>>> {
         Ok(self
             .instance
             .methods()
