@@ -105,11 +105,12 @@ impl TokenFactoryContract{
         logo: Option<String>,
         description: Option<String>,
         metadata_list: Vec<(String, Metadata)>,
+        fee_asset: AssetId,
         amount: u64,
         gas: u64,
     ) -> anyhow::Result<CallResponse<AssetId>> {
         let tx_policies = TxPolicies::new(Some(0), None, Some(0), None, Some(gas));
-        let call_params = CallParameters::new(amount, AssetId::zeroed(), gas);
+        let call_params = CallParameters::new(amount, fee_asset, gas);
         Ok(self
             .instance
             .methods()
@@ -167,5 +168,9 @@ impl TokenFactoryContract{
 
     pub async fn set_fee_info(&self, fee_info: FeeInfo) -> anyhow::Result<CallResponse<()>> {
         Ok(self.instance.methods().set_fee_info(fee_info).call().await?)
+    }
+
+    pub async fn metadata(&self, asset: AssetId, key: String) -> anyhow::Result<CallResponse<Option<Metadata>>> {
+        Ok(self.instance.methods().metadata(asset, key).call().await?)
     }
 }
