@@ -95,6 +95,10 @@ impl TokenFactoryContract{
             .await?)
     }
 
+    pub async fn owner(&self) -> anyhow::Result<CallResponse<State>> {
+        Ok(self.instance.methods().owner().call().await?)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub async fn new_asset(
         &self,         
