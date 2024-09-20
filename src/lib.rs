@@ -4,7 +4,7 @@ use fuels::{
         CallParameters, WalletUnlocked, VariableOutputPolicy,
     },
     programs::responses::CallResponse,
-    types::{bech32::Bech32ContractId, AssetId, Bytes32, Identity},
+    types::{bech32::Bech32ContractId, AssetId, Bytes32, Identity, ContractId},
 };
 
 use rand::Rng;
@@ -22,7 +22,7 @@ pub struct TokenFactoryContract {
 }
 
 impl TokenFactoryContract{
-    pub async fn deploy(wallet: &WalletUnlocked) -> anyhow::Result<Self> {
+    pub async fn deploy(wallet: &WalletUnlocked, fee_info: &FeeInfo) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
@@ -47,13 +47,17 @@ impl TokenFactoryContract{
             instance: tokenfactory,
         };
 
-        _self.initialize(wallet.address().into(), FeeInfo {
-            fee_asset: AssetId::zeroed(),
-            fee_amount: 10,
-            fee_address: wallet.address().into(),
-        }).await?;
+        _self.initialize(wallet.address().into(), fee_info).await?;
 
         Ok(_self)
+    }
+
+    // Initialize the contract with contract ID and wallet
+    pub fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
+        // Create a new contract instance
+        let instance = TokenFactory::new(contract_id, wallet);
+
+        TokenFactoryContract { instance }
     }
 
     pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
@@ -73,12 +77,12 @@ impl TokenFactoryContract{
     pub async fn initialize(
         &self,
         owner: Identity,
-        fee_info: FeeInfo,
+        fee_info: &FeeInfo,
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .instance
             .methods()
-            .initialize(owner, fee_info)
+            .initialize(owner, fee_info.to_owned())
             .call()
             .await?)
     }

@@ -11,6 +11,10 @@ harness = true
 name = "integration_tests"
 path = "tests/harness.rs"
 
+[[bin]]
+name="meme"
+path="scripts/main.rs"
+
 [dependencies]
 anyhow = "1.0.86"
 dotenv = "0.15.0"
