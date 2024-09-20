@@ -59,7 +59,7 @@ async fn deploy(fee_amount: &str, fee_address: &str) {
     let fee_info = FeeInfo {
         fee_asset: AssetId::from_str(&asset_id).unwrap(),
         fee_amount: fee_amount.parse::<u64>().unwrap(),
-        fee_address: Address::from_str(&fee_address).unwrap(),
+        fee_address: Address::from_str(fee_address).unwrap(),
     };
 
     // deploy the contract
@@ -85,7 +85,7 @@ async fn set_fee_info(contract_id: &str, fee_amount: &str, fee_address: &str) {
  
     // import the contract
     let contract_id = &ContractId::from_str(contract_id).unwrap();
-    let contract = TokenFactoryContract::new(contract_id.clone(), wallet.clone());
+    let contract = TokenFactoryContract::new(contract_id.to_owned(), wallet.clone());
 
     //new fee info value
     let new_fee_info = FeeInfo {
