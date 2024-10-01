@@ -12,5 +12,6 @@ pub struct AssetNew {
     pub supply: u64,
     pub logo: Option<String>,
     pub description: Option<String>,
-    pub tags: Vec<(String, Metadata)>,
+    pub tags: Option<Vec<(String, Metadata)>>,
+    pub socials: Option<Vec<(String, Metadata)>>,
 }

@@ -27,12 +27,16 @@ mod success {
             ("key2".to_string(), Metadata::String("value2".to_string())),
             ("key3".to_string(), Metadata::String("value3".to_string())),
         ];
+        let social_links = vec![
+            ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
+            ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
+        ];
 
         let wallet_balance = owner.wallet.get_asset_balance(&fee_asset).await?;
         let response = contract
             .with_account(&user.wallet)
             .await?
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, logo.clone(), description.clone(), metadata.clone(), fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, logo.clone(), description.clone(), metadata.clone(), social_links.clone(), fee_asset, amount, gas)
             .await?;
         let asset = response.value;
         assert_ne!(response.value, AssetId::zeroed());
@@ -56,6 +60,8 @@ mod success {
         assert_eq!(contract.metadata(asset, "key1".to_string()).await?.value, Some(Metadata::String("value1".to_string())));
         assert_eq!(contract.metadata(asset, "key2".to_string()).await?.value, Some(Metadata::String("value2".to_string())));
         assert_eq!(contract.metadata(asset, "key3".to_string()).await?.value, Some(Metadata::String("value3".to_string())));
+        assert_eq!(contract.metadata(asset, "twitter".to_string()).await?.value, Some(Metadata::String("https://twitter.com/example".to_string())));
+        assert_eq!(contract.metadata(asset, "discord".to_string()).await?.value, Some(Metadata::String("https://discord.gg/example".to_string())));
 
         // check if the event is emitted properly
         let log = response.decode_logs_with_type::<AssetNew>().unwrap();
@@ -99,7 +105,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -121,7 +127,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -143,7 +149,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -165,7 +171,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -187,7 +193,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
 
@@ -195,7 +201,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name, symbol, decimals, mint_amount, None, None, vec![], fee_asset, amount, gas)
+            .new_asset(name, symbol, decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -221,12 +227,16 @@ mod revert {
             ("key6".to_string(), Metadata::String("value6".to_string())),
             ("key7".to_string(), Metadata::String("value7".to_string())),
         ];
+        let social_links = vec![
+            ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
+            ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
+        ];
 
         contract
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, metadata, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, metadata, social_links, fee_asset, amount, gas)
             .await
             .unwrap();
     }

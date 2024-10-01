@@ -86,7 +86,8 @@ abi TokenFactory {
         mint_amount: u64,
         logo: Option<String>,
         description: Option<String>,
-        metadata_list: Vec<(String, Metadata)>,
+        metadata_list: Option<Vec<(String, Metadata)>>,
+        social_links: Option<Vec<(String, Metadata)>>,
     ) -> AssetId;
 
     #[storage(read)]
@@ -121,7 +122,8 @@ impl TokenFactory for Contract {
         mint_amount: u64,
         logo: Option<String>,
         description: Option<String>,
-        metadata_list: Vec<(String, Metadata)>,
+        metadata_list: Option<Vec<(String, Metadata)>>,
+        social_links: Option<Vec<(String, Metadata)>>,
     ) -> AssetId {
         // Get the fee requirement and checks if this is satisfied by the sender
         let fee_info = storage.fee_info.read();
@@ -186,18 +188,41 @@ impl TokenFactory for Contract {
 
         storage.description.insert(asset, StorageString {});
         if let Some(description_str) = description {
+            require(
+                description_str
+                    .as_bytes()
+                    .len() >= 0 && description_str
+                    .as_bytes()
+                    .len() < 300,
+                TokenError::InvalidDescription,
+            );
             storage.description.get(asset).write_slice(description_str);
         }
 
-        let len = metadata_list.len();
-        require(len < 7, TokenError::TooManyTags);
+        if let Some(social_links) = social_links {
+            let social_len = social_links.len();
+            require(social_len < 5, TokenError::TooManySocialLinks);
 
-        let mut i = 0;
+            let mut j = 0;
 
-        while i < len {
-            let metadata = metadata_list.get(i).unwrap();
-            _set_metadata(storage.metadata, asset, metadata.0, metadata.1);
-            i += 1;
+            while j < social_len {
+                let social_link = social_links.get(j).unwrap();
+                _set_metadata(storage.metadata, asset, social_link.0, social_link.1);
+                j += 1;
+            }
+        }
+
+        if let Some(metadata_list) = metadata_list {
+            let len = metadata_list.len();
+            require(len < 7, TokenError::TooManyTags);
+
+            let mut i = 0;
+
+            while i < len {
+                let metadata = metadata_list.get(i).unwrap();
+                _set_metadata(storage.metadata, asset, metadata.0, metadata.1);
+                i += 1;
+            }
         }
 
         log(AssetNew {
@@ -210,6 +235,7 @@ impl TokenFactory for Contract {
             logo,
             description,
             tags: metadata_list,
+            socials: social_links,
         });
         asset
     }

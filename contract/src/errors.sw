@@ -7,7 +7,9 @@ pub enum TokenError {
     FeeAmountInsufficient: (),
     InvalidName: (String),
     InvalidSymbol: (String),
+    InvalidDescription: (),
     ZeroMintAmount: (),
     TokenAlreadyExists: (AssetId),
     TooManyTags: (),
+    TooManySocialLinks: (),
 }
