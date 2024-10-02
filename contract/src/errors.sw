@@ -10,6 +10,4 @@ pub enum TokenError {
     InvalidDescription: (),
     ZeroMintAmount: (),
     TokenAlreadyExists: (AssetId),
-    TooManyTags: (),
-    TooManySocialLinks: (),
 }

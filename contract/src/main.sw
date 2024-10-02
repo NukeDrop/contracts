@@ -87,7 +87,6 @@ abi TokenFactory {
         logo: Option<String>,
         description: Option<String>,
         metadata_list: Option<Vec<(String, Metadata)>>,
-        social_links: Option<Vec<(String, Metadata)>>,
     ) -> AssetId;
 
     #[storage(read)]
@@ -123,7 +122,6 @@ impl TokenFactory for Contract {
         logo: Option<String>,
         description: Option<String>,
         metadata_list: Option<Vec<(String, Metadata)>>,
-        social_links: Option<Vec<(String, Metadata)>>,
     ) -> AssetId {
         // Get the fee requirement and checks if this is satisfied by the sender
         let fee_info = storage.fee_info.read();
@@ -132,7 +130,7 @@ impl TokenFactory for Contract {
         require(asset_id == fee_info.fee_asset, TokenError::InvalidAssetPayment);
         
         let amount = msg_amount();
-        require(amount >= fee_info.fee_amount, TokenError::FeeAmountInsufficient);
+        require(amount == fee_info.fee_amount, TokenError::FeeAmountInsufficient);
 
         // transfer the fee to the fee address
         transfer(Identity::Address(fee_info.fee_address), asset_id, amount);
@@ -199,19 +197,7 @@ impl TokenFactory for Contract {
             storage.description.get(asset).write_slice(description_str);
         }
 
-        if let Some(social_links) = social_links {
-            let social_len = social_links.len();
-            require(social_len < 5, TokenError::TooManySocialLinks);
-
-            for element in social_links.iter() {
-                _set_metadata(storage.metadata, asset, element.0, element.1);
-            }
-        }
-
         if let Some(metadata_list) = metadata_list {
-            let len = metadata_list.len();
-            require(len < 7, TokenError::TooManyTags);
-
             for element in metadata_list.iter() {
                 _set_metadata(storage.metadata, asset, element.0, element.1);
             }
@@ -227,7 +213,6 @@ impl TokenFactory for Contract {
             logo,
             description,
             tags: metadata_list,
-            socials: social_links,
         });
         asset
     }

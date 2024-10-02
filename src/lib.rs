@@ -113,7 +113,6 @@ impl TokenFactoryContract{
         logo: Option<String>,
         description: Option<String>,
         metadata_list: Option<Vec<(String, Metadata)>>,
-        social_links: Option<Vec<(String, Metadata)>>,
         fee_asset: AssetId,
         amount: u64,
         gas: u64,
@@ -123,7 +122,7 @@ impl TokenFactoryContract{
         Ok(self
             .instance
             .methods()
-            .new_asset(name, symbol, decimals, mint_amount, logo, description, metadata_list, social_links)
+            .new_asset(name, symbol, decimals, mint_amount, logo, description, metadata_list)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(2))
             .with_tx_policies(tx_policies)
             .call_params(call_params)

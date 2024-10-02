@@ -26,8 +26,6 @@ mod success {
             ("key1".to_string(), Metadata::String("value1".to_string())),
             ("key2".to_string(), Metadata::String("value2".to_string())),
             ("key3".to_string(), Metadata::String("value3".to_string())),
-        ]);
-        let social_links = Some(vec![
             ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
             ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
         ]);
@@ -36,7 +34,7 @@ mod success {
         let response = contract
             .with_account(&user.wallet)
             .await?
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, logo.clone(), description.clone(), metadata.clone(), social_links.clone(), fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, logo.clone(), description.clone(), metadata.clone(), fee_asset, amount, gas)
             .await?;
         let asset = response.value;
         assert_ne!(response.value, AssetId::zeroed());
@@ -78,7 +76,6 @@ mod success {
                 logo,
                 description,
                 tags: metadata,
-                socials: social_links,
             },
         );
 
@@ -106,7 +103,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -128,7 +125,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -150,7 +147,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -172,7 +169,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -194,7 +191,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
 
@@ -202,42 +199,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name, symbol, decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
-            .await
-            .unwrap();
-    }
-
-    #[tokio::test]
-    #[should_panic(expected = "TooManyTags")]
-    async fn create_asset_too_many_metadata() {
-        let (contract, _owner, user) = setup().await.unwrap();
-
-        let name = String::from("BTC_NAME");
-        let symbol = String::from("BTC");
-        let decimals = 8;
-        let mint_amount = 1000000;
-        let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
-        let gas = 200_000;
-        let metadata = Some(vec![
-            ("key1".to_string(), Metadata::String("value1".to_string())),
-            ("key2".to_string(), Metadata::String("value2".to_string())),
-            ("key3".to_string(), Metadata::String("value3".to_string())),
-            ("key4".to_string(), Metadata::String("value4".to_string())),
-            ("key5".to_string(), Metadata::String("value5".to_string())),
-            ("key6".to_string(), Metadata::String("value6".to_string())),
-            ("key7".to_string(), Metadata::String("value7".to_string())),
-        ]);
-        let social_links = Some(vec![
-            ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
-            ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
-        ]);
-
-        contract
-            .with_account(&user.wallet)
-            .await
-            .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, metadata, social_links, fee_asset, amount, gas)
+            .new_asset(name, symbol, decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
