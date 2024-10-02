@@ -22,15 +22,15 @@ mod success {
         let gas = 200_000;
         let logo = Some(String::from("https://example.com/logo.png"));
         let description = Some(String::from("meme coin"));
-        let metadata = vec![
+        let metadata = Some(vec![
             ("key1".to_string(), Metadata::String("value1".to_string())),
             ("key2".to_string(), Metadata::String("value2".to_string())),
             ("key3".to_string(), Metadata::String("value3".to_string())),
-        ];
-        let social_links = vec![
+        ]);
+        let social_links = Some(vec![
             ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
             ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
-        ];
+        ]);
 
         let wallet_balance = owner.wallet.get_asset_balance(&fee_asset).await?;
         let response = contract
@@ -78,6 +78,7 @@ mod success {
                 logo,
                 description,
                 tags: metadata,
+                socials: social_links,
             },
         );
 
@@ -105,7 +106,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -127,7 +128,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -149,7 +150,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -171,7 +172,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -193,7 +194,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
 
@@ -201,7 +202,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .new_asset(name, symbol, decimals, mint_amount, None, None, vec![], vec![], fee_asset, amount, gas)
+            .new_asset(name, symbol, decimals, mint_amount, None, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
@@ -218,7 +219,7 @@ mod revert {
         let fee_asset = AssetId::zeroed();
         let amount = 50u64;
         let gas = 200_000;
-        let metadata = vec![
+        let metadata = Some(vec![
             ("key1".to_string(), Metadata::String("value1".to_string())),
             ("key2".to_string(), Metadata::String("value2".to_string())),
             ("key3".to_string(), Metadata::String("value3".to_string())),
@@ -226,11 +227,11 @@ mod revert {
             ("key5".to_string(), Metadata::String("value5".to_string())),
             ("key6".to_string(), Metadata::String("value6".to_string())),
             ("key7".to_string(), Metadata::String("value7".to_string())),
-        ];
-        let social_links = vec![
+        ]);
+        let social_links = Some(vec![
             ("twitter".to_string(), Metadata::String("https://twitter.com/example".to_string())),
             ("discord".to_string(), Metadata::String("https://discord.gg/example".to_string())),
-        ];
+        ]);
 
         contract
             .with_account(&user.wallet)

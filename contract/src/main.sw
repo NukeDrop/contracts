@@ -203,12 +203,8 @@ impl TokenFactory for Contract {
             let social_len = social_links.len();
             require(social_len < 5, TokenError::TooManySocialLinks);
 
-            let mut j = 0;
-
-            while j < social_len {
-                let social_link = social_links.get(j).unwrap();
-                _set_metadata(storage.metadata, asset, social_link.0, social_link.1);
-                j += 1;
+            for element in social_links.iter() {
+                _set_metadata(storage.metadata, asset, element.0, element.1);
             }
         }
 
@@ -216,12 +212,8 @@ impl TokenFactory for Contract {
             let len = metadata_list.len();
             require(len < 7, TokenError::TooManyTags);
 
-            let mut i = 0;
-
-            while i < len {
-                let metadata = metadata_list.get(i).unwrap();
-                _set_metadata(storage.metadata, asset, metadata.0, metadata.1);
-                i += 1;
+            for element in metadata_list.iter() {
+                _set_metadata(storage.metadata, asset, element.0, element.1);
             }
         }
 
