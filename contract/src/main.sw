@@ -193,7 +193,7 @@ impl TokenFactory for Contract {
                     .as_bytes()
                     .len() >= 0 && description_str
                     .as_bytes()
-                    .len() < 300,
+                    .len() <= 300,
                 TokenError::InvalidDescription,
             );
             storage.description.get(asset).write_slice(description_str);
