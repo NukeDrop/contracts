@@ -21,6 +21,7 @@ use std::{
     constants::ZERO_B256,
     call_frames::msg_asset_id,
     asset::transfer,
+    block::timestamp,
 };
 use sway_libs::{
     asset::{
@@ -155,8 +156,10 @@ impl TokenFactory for Contract {
             TokenError::InvalidSymbol(symbol),
         );
 
+        let sender = msg_sender().unwrap();
+
         // generate a sub id of the token
-        let sub_id = sha256((ContractId::this(), symbol));
+        let sub_id = sha256((ContractId::this(), symbol, sender, timestamp()));
         let asset = AssetId::new(ContractId::this(), sub_id);
         
         // check if the asset already existed
@@ -166,7 +169,6 @@ impl TokenFactory for Contract {
         require(mint_amount > 0, TokenError::ZeroMintAmount);
 
         // mint the tokens to the token creator
-        let sender = msg_sender().unwrap();
         mint_to(sender, sub_id, mint_amount);
 
         // set the total supply

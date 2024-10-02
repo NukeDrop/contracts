@@ -18,7 +18,7 @@ mod success {
         let decimals = 8;
         let mint_amount = 1000000;
         let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
+        let amount = 10u64;
         let gas = 200_000;
         let logo = Some(String::from("https://example.com/logo.png"));
         let description = Some(String::from("meme coin"));
@@ -118,7 +118,7 @@ mod revert {
         let decimals = 8;
         let mint_amount = 1000000;
         let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
+        let amount = 10u64;
         let gas = 200_000;
 
         contract
@@ -140,7 +140,7 @@ mod revert {
         let decimals = 8;
         let mint_amount = 1000000;
         let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
+        let amount = 10u64;
         let gas = 200_000;
 
         contract
@@ -162,7 +162,7 @@ mod revert {
         let decimals = 8;
         let mint_amount = 0;
         let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
+        let amount = 10u64;
         let gas = 200_000;
 
         contract
@@ -170,36 +170,6 @@ mod revert {
             .await
             .unwrap()
             .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
-            .await
-            .unwrap();
-    }
-
-    #[tokio::test]
-    #[should_panic(expected = "TokenAlreadyExists")]
-    async fn create_asset_already_exists() {
-        let (contract, _owner, user) = setup().await.unwrap();
-
-        let name = String::from("BTC_NAME");
-        let symbol = String::from("BTC");
-        let decimals = 8;
-        let mint_amount = 1000000;
-        let fee_asset = AssetId::zeroed();
-        let amount = 50u64;
-        let gas = 200_000;
-
-        contract
-            .with_account(&user.wallet)
-            .await
-            .unwrap()
-            .new_asset(name.clone(), symbol.clone(), decimals, mint_amount, None, None, None, fee_asset, amount, gas)
-            .await
-            .unwrap();
-
-        _ = contract
-            .with_account(&user.wallet)
-            .await
-            .unwrap()
-            .new_asset(name, symbol, decimals, mint_amount, None, None, None, fee_asset, amount, gas)
             .await
             .unwrap();
     }
