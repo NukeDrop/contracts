@@ -1,0 +1,39 @@
+[package]
+name = "memecoins_sdk"
+description = "A cargo-generate template for Rust + Sway integration testing."
+version = "0.1.0"
+edition = "2021"
+authors = ["William Yu <wando0226@gmail.com>"]
+license = "Apache-2.0"
+
+[[test]]
+harness = true
+name = "integration_tests"
+path = "tests/harness.rs"
+
+[[bin]]
+name="meme"
+path="scripts/main.rs"
+
+[dependencies]
+anyhow = "1.0.86"
+dotenv = "0.15.0"
+rand = "0.8.5"
+reqwest = "0.11.13"
+serde = "1.0.188"
+serde_json = "1.0.91"
+# Dependencies from fuel-vm repository:
+fuel-asm = "0.56.0"
+fuel-tx = "0.56.0"
+# Dependencies from fuel-core repository:
+fuel-core-types = { version = "0.32.1", default-features = false }
+
+# Dependencies from fuels-rs repository:    
+fuels = { version = "0.66.1", features = ["fuel-core-lib"] }
+
+# Third-party dependencies
+tokio = { version = "1.40.0", features = ["rt", "macros"] }
+hex = "0.4.3"
+
+# Base asset
+sha2 = { version = "0.10.0" }
